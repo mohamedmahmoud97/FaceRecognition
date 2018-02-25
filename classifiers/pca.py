@@ -39,12 +39,10 @@ def pca(X, alpha, verbose):
 			continue
 
 	#the U projection matrix
-	U = tempEiVec[:,0:maxIndex]
+	U = tempEiVec[:1:maxIndex]
 	U = np.expand_dims(U,axis=1)
 
 	#X = np.dot(X,U)
-
-	# oh lalalallalalal
 
 	if verbose == True:
 		print(mean)
