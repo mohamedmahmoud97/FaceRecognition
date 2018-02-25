@@ -33,12 +33,18 @@ def pca(X, alpha, verbose):
 	for x in range(len(eighVal)):
 		maxEiIndex.append(tempEiVal[x])
 		maxIndex = x
-		(np.sum(maxEiIndex)/np.trace(cov))>alpha:break:continue
+		if (np.sum(maxEiIndex)/np.trace(cov))>alpha:
+			break
+		else:
+			continue
 
 	#the U projection matrix
 	U = tempEiVec[:1:maxIndex]
+	U = np.expand_dims(U,axis=1)
 
-	X = np.dot(X,U)
+	#X = np.dot(X,U)
+
+	# oh lalalallalalal
 
 	if verbose == True:
 		print(mean)
@@ -46,6 +52,7 @@ def pca(X, alpha, verbose):
 		print(cov)
 		print("eighen values: \n",eighVal)
 		print("eighen vectors: \n",eighVec)
+		print(U.shape)
 
 
 	return U,X
