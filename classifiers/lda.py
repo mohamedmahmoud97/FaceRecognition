@@ -1,53 +1,73 @@
 import numpy as np
 from numpy import linalg as LA
+from scipy.sparse import linalg as SLA
 
-"""
-LDA function used for dimensionality reduction
-X is the data matrix
-y is the label column vector
-dims is the number of features in the data matrix
-r is the dimensions of the subspace
-"""
+class LDA:
+    def __init__(self):
+        self._proj_mat = None
 
-def LDA(X, y, noOfClasses, dims, r, verbose=False):
-    #calculating the mean of the classes
-    mean_vectors = []
-    for cl in range(1, noOfClasses + 1):
-        mean_vectors.append(np.mean(X[y==cl], axis=0, keepdims=True))
-            
-    #within-class matrix
-    S = np.zeros((dims, dims))                                         #initializing the matrix
-    for cl, mean in zip(range(1, noOfClasses), mean_vectors):
-        class_sc_mat = np.zeros((dims, dims))                          # scatter matrix for every class
-        #for row in X[y == cl]:
-            #row, mean = row.reshape(dims, 1), mean.reshape(dims, 1)   # make column vectors
-            #class_sc_mat += (row-mean).dot((row-mean).T)
-        mat = X[y == cl]
-        z = mat - mean
-        S += z.dot(z.T)                                                # sum class scatter matrices
-    
-    #between-class matrix
-    overall_mean = np.mean(X, axis=0, keepdims=True)
+    def train(self, X, y, noOfClasses, r, load_path=None, verbose=False):
 
-    B = np.zeros((dims, dims))
-    for i, mean_vec in enumerate(mean_vectors):  
-        ni = X[y==i+1,:].shape[0]
-        #mean_vec = mean_vec.reshape(10304, 1)                           # make column vector
-        #overall_mean = overall_mean.reshape(10304, 1)                   # make column vector
-        B += ni * (mean_vec - overall_mean).T.dot((mean_vec - overall_mean))
+        """
+            LDA function used for dimensionality reduction
+            X_train is the data matrix
+            y_train is the label column vector
+            r is the dimensions of the subspace
+        """
+
+        if load_path is not None:
+            self._proj_mat = np.real(np.load(load_path))
+            return self._proj_mat
+
+        dims = X.shape[1]
+        #calculating the mean of the classes
+        mean_vectors = np.empty((noOfClasses, dims))
     
-    #calcualting eigenvalues and eigenvectors
-    eig_vals, eig_vecs = LA.eig(np.linalg.inv(S).dot(B))
-    index = (-eig_vals).argsort()[:r]                                    #sorting the first r eigenvals 
-    sortedEigenvec = eig_vals[index]
-    
-    X_lda = X.dot(sortedEigenvec)
-    assert X_lda.shape == (X.shape[0]/2, r), "The matrix is not 150x2 dimensional."
-    
-    if verbose:
-        print(f'Mean vector class {cl} is {mean_vectors}.')
-        print('within-class Scatter Matrix:\n', S)
-        print('between-class Scatter Matrix:\n', S)
-        print('sorted Eigenvectors\n{sortedEigenvec}')
+        for cl in range(0, noOfClasses):
+            mean_vectors[cl] = np.mean(X[y==cl+1], axis=0, keepdims=True)
+                
+        #within-class matrix
+        S = np.zeros((dims, dims))                                         #initializing the matrix
+        for cl, mean in zip(range(0, noOfClasses), mean_vectors):
+            class_sc_mat = np.zeros((dims, dims))                          # scatter matrix for every class
+
+            mat = X[y == cl+1]
+            z = mat - mean
+            print(f'calculating S {cl+1}')
+            S += z.T.dot(z)                                                # sum class scatter matrices
         
-    return X_lda
+        #between-class matrix
+        overall_mean = np.mean(X, axis=0, keepdims=True)
+        centered_means = mean_vectors - overall_mean
+        B = np.zeros((dims, dims))
+        for i, mean_vec in enumerate(mean_vectors):  
+            ni = X[y==i+1,:].shape[0] # cardinality of ith class
+            print(f'calculating B {i+1}')
+            B += ni * (centered_means).T.dot(centered_means)
+        
+
+        print('Calculating inverse')
+        S_inv = LA.inv(S)
+        print('Calculating eigenvectors')
+        #calcualting eigenvalues and eigenvectors                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+        eig_vals, eig_vecs = SLA.eigs(S_inv.dot(B), k=r)
+        index = (-eig_vals).argsort()[:r]                #sorting the first r eigenvals 
+        sortedEigenvec = eig_vecs[index]
+        self._proj_mat = np.real(sortedEigenvec)
+        print('computing projected data')
+       
+        
+        if verbose:
+            print(f'Mean vector class {cl} is {mean_vectors}.')
+            print('within-class Scatter Matrix:\n', S)
+            print('between-class Scatter Matrix:\n', S)
+            print(f'sorted Eigenvectors\n{sortedEigenvec}')
+            
+        with open('./lda_projection.npy','wb+') as f:
+            np.save(f,self._proj_mat)
+
+        return sortedEigenvecs
+
+
+    def project(self, X):
+        return X.dot(self._proj_mat.T)
