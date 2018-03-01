@@ -1,56 +1,72 @@
+from classifiers.base_classifier import Base_classifier
 import numpy as np
+from scipy import linalg as LA
 
-def pca(X, alpha, verbose):
-	U = []
-	maxEiIndex = []
-
-	#mean
-	mean = np.mean(X, axis=0)
-	mean = np.expand_dims(mean,axis=1)
+class PCA:
+	def __init__(self):
+		self._proj_mat = None
 	
-	#the centered matrix
-	mean = np.mean(X,axis=0)
-	Z = X - mean
+	def train(self, X, alpha, load_path=None, verbose=False):
+		
+		if load_path is not None:
+			self._proj_mat = np.real(np.load(load_path))
+			return self._proj_mat
+		
+		maxEiIndex = []
 
-	#cpvarinace matrix
-	cov = np.cov(X.T)
+		#mean
+		mean = np.mean(X, axis=0)
+		mean = np.expand_dims(mean,axis=1)
+		
+		#the centered matrix
+		mean = np.mean(X,axis=0)
+		Z = X - mean
 
-	#eighen value and vectors
-	eighVal,eighVec = np.linalg.eig(cov)
+		#covarinace matrix
+		cov = np.cov(X.T)
 
-	#temp eighen values and vectors to be sorted for later computation
-	tempEiVal = eighVal
-	tempEiVec = eighVec
-	#index of last eighen value to be taken to exceed the 
-	maxIndex = 0
+		#eighen values and vectors
+		eighVal,eighVec = LA.eig(cov)
 
-	#sorting of eighen values and vectors
-	idx = tempEiVal.argsort()[::-1]   
-	tempEiVal = tempEiVal[idx]
-	tempEiVec = tempEiVec[:,idx]
+		#temp eighen values and vectors to be sorted for later computation
+		tempEiVal = eighVal
+		tempEiVec = eighVec
+		#index of last eighen value to be taken to exceed the alpha
+		maxIndex = 0
 
-	#compute the acceptable explained variance to exceed the alpha
-	for x in range(len(eighVal)):
-		maxEiIndex.append(tempEiVal[x])
-		maxIndex = x
-		if (np.sum(maxEiIndex)/np.trace(cov))>alpha:
-			break
-		else:
-			continue
+		#sorting of eighen values and vectors
+		idx = tempEiVal.argsort()[::-1]   
+		tempEiVal = tempEiVal[idx]
+		tempEiVec = tempEiVec[:,idx]
 
-	#the U projection matrix
-	U = tempEiVec[:1:maxIndex]
-	U = np.expand_dims(U,axis=1)
+		#compute the acceptable explained variance to exceed the self.alpha
+		for x in range(len(tempEiVal)):
+			maxEiIndex.append(tempEiVal[x])
+			maxIndex = x
+			if (np.sum(maxEiIndex)/np.trace(cov))>alpha:
+				break
+			else:
+				continue
 
-	#X = np.dot(X,U)
+		#the projection matrix
+		tempEiVec = tempEiVec[:,0:maxIndex]
+		tempEiVec = np.expand_dims(self._proj_mat,axis=1)
+		self._proj_mat = np.real(tempEiVec)
 
-	if verbose == True:
-		print(mean)
-		print(Z)
-		print(cov)
-		print("eighen values: \n",eighVal)
-		print("eighen vectors: \n",eighVec)
-		print(U.shape)
+		with open('./pca_projection.npy','wb+') as f:
+			np.save(f,self._proj_mat)
 
+		print('computing projected data')
 
-	return U,X
+		if verbose:
+			print(mean)
+			print(Z)
+			print(cov)
+			print("eighen values: \n",tempEiVal)
+			print("eighen vectors: \n",tempEiVec)
+			print(tempEiVec.shape)
+
+		return tempEiVec
+
+	def project(self, X):
+		return X.dot(self._proj_mat.T)
