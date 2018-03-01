@@ -1,14 +1,14 @@
 from classifiers.base_classifier import Base_classifier
 import numpy as np
 from scipy import linalg as LA
-
+import os.path
 class PCA:
 	def __init__(self):
 		self._proj_mat = None
 	
 	def train(self, X, alpha, load_path=None, verbose=False):
 		
-		if load_path is not None:
+		if load_path is not None and os.path.isfile(load_path):
 			self._proj_mat = np.real(np.load(load_path))
 			return self._proj_mat
 		
