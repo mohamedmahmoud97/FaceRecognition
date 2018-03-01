@@ -53,7 +53,7 @@ class PCA:
 		tempEiVec = np.expand_dims(self._proj_mat,axis=1)
 		self._proj_mat = np.real(tempEiVec)
 
-		with open('./pca_projection.npy','wb+') as f:
+		with open(load_path,'wb+') as f:
 			np.save(f,self._proj_mat)
 
 		print('computing projected data')

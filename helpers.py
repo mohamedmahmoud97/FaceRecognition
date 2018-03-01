@@ -30,8 +30,8 @@ def load_faces(root_path):
     X = []
     y = []
     walk_dir(root_path, load_img_into(X), set_label_into(y))
-    y = np.array(X)
-    X = np.array(y).reshape(400,-1)
+    y = np.array(y)
+    X = np.array(X).reshape(400,-1)
     return X, y
 
 def visualize_grid(Xs, ubound=255.0, padding=1):
