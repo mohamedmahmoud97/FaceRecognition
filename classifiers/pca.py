@@ -12,13 +12,8 @@ class PCA:
 			#compute covariance matrix
 			cov = self.computeCov(X)
 			
-<<<<<<< HEAD
-			#load the eigen vectors and values from the saved file
-			data = np.load('pca_projection.npz');EiVal = data['name1'];EiVec = data['name2']
-=======
 			#load the eighen vectors and values from the saved file
 			data = np.load(load_path);EiVal = data['name1'];EiVec = data['name2']
->>>>>>> dc732b3e6de1b988f6be8080060606d5f23cd2bf
 			tempEiVal = np.absolute(EiVal)
 			tempEiVec = np.absolute(EiVec)
 
@@ -29,13 +24,9 @@ class PCA:
     			print('computing covariance matrix')
 		cov = self.computeCov(X)
 
-<<<<<<< HEAD
-		#eigen values and vectors
-=======
 		#eighen values and vectors
 		if verbose:
     			print('computing eigenvectors')
->>>>>>> dc732b3e6de1b988f6be8080060606d5f23cd2bf
 		eighVal,eighVec = LA.eig(cov)
 
 		#temp eigen values and vectors to be sorted for later computation
@@ -49,14 +40,10 @@ class PCA:
 		if verbose:
 			print('slicing eigenvectors based on alpha or r')
 		slcEiVec = self.computeEiFaces(tempEiVal, tempEiVec, cov, r, alpha, verbose)
-<<<<<<< HEAD
 
 		if load_path is None:
 			print("Will not save the eigen vectors to a file")
 		else:
-=======
-		if load_path is not None:
->>>>>>> dc732b3e6de1b988f6be8080060606d5f23cd2bf
 			with open(load_path,'wb+') as f:
 				np.savez(f, name1=tempEiVal, name2=tempEiVec)
 
