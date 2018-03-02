@@ -12,7 +12,7 @@ class PCA:
 			#compute covariance matrix
 			cov = self.computeCov(X)
 			
-			#load the eighen vectors and values from the saved file
+			#load the eigen vectors and values from the saved file
 			data = np.load('pca_projection.npz');EiVal = data['name1'];EiVec = data['name2']
 			tempEiVal = np.absolute(EiVal)
 			tempEiVec = np.absolute(EiVec)
@@ -22,22 +22,25 @@ class PCA:
 		#covarinace matrix
 		cov = self.computeCov(X)
 
-		#eighen values and vectors
+		#eigen values and vectors
 		eighVal,eighVec = LA.eig(cov)
 
-		#temp eighen values and vectors to be sorted for later computation
+		#temp eigen values and vectors to be sorted for later computation
 		tempEiVal = eighVal
 		tempEiVec = eighVec
 
-		#sorting of eighen values and vectors
+		#sorting of eigen values and vectors
 		idx = tempEiVal.argsort()[::-1]   
 		tempEiVal = tempEiVal[idx]
 		tempEiVec = tempEiVec[:,idx]
 
 		slcEiVec = self.computeEiFaces(tempEiVal, tempEiVec, cov, r, alpha, verbose)
 
-		with open(load_path,'wb+') as f:
-			np.savez(f, name1=tempEiVal, name2=tempEiVec)
+		if load_path is None:
+			print("Will not save the eigen vectors to a file")
+		else:
+			with open(load_path,'wb+') as f:
+				np.savez(f, name1=tempEiVal, name2=tempEiVec)
 
 		return slcEiVec
 
@@ -58,14 +61,14 @@ class PCA:
 		return cov
 	
 	def computeEiFaces(self, tempEiVal, tempEiVec, cov, r=None, alpha=None, verbose=False):
-		#list of max eighen values chosen
+		#list of max eigen values chosen
 		maxEiIndex = []
 
 		if alpha is None and r is None:
 			raise ValueError()
 
 		if alpha is not None:
-			#index of last eighen value to be taken to exceed the alpha
+			#index of last eigen value to be taken to exceed the alpha
 			maxIndex = 0
 
 			#compute the acceptable explained variance to exceed the self.alpha
@@ -88,7 +91,7 @@ class PCA:
 		print(tempEiVal.shape,slcEiVec.shape)
 
 		if verbose:
-			print("eighen values: \n",tempEiVal)
-			print("eighen vectors: \n",slcEiVec)
+			print("eigen values: \n",tempEiVal)
+			print("eigen vectors: \n",slcEiVec)
 			print(tempEiVec.shape)
 		return slcEiVec
