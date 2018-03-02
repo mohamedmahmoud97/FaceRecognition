@@ -1,6 +1,7 @@
 import numpy as np
 from numpy import linalg as LA
 from scipy.sparse import linalg as SLA
+import os
 
 class LDA:
     def __init__(self):
@@ -15,7 +16,9 @@ class LDA:
             r is the dimensions of the subspace
         """
 
-        if load_path is not None:
+        if load_path is not None and os.path.isfile(load_path):
+            if verbose:
+                print(f'loading from {load_path}')
             self._proj_mat = np.real(np.load(load_path))
             return self._proj_mat
 
@@ -33,7 +36,8 @@ class LDA:
 
             mat = X[y == cl+1]
             z = mat - mean
-            print(f'calculating S {cl+1}')
+            if verbose:
+                print(f'calculating S {cl+1}')
             S += z.T.dot(z)                                                # sum class scatter matrices
         
         #between-class matrix
@@ -42,29 +46,35 @@ class LDA:
         B = np.zeros((dims, dims))
         for i, _ in enumerate(mean_vectors):  
             ni = X[y==i+1,:].shape[0] # cardinality of ith class
-            print(f'calculating B {i+1}')
+            if verbose:
+                print(f'calculating B {i+1}')
             B += ni * (centered_means).T.dot(centered_means)
-        print('Calculating inverse')
+        
+        if verbose:
+            print('Calculating inverse')
         s_inv = LA.pinv(S)
-        print('Done inverse calculation')
-        #calcualting eigenvalues and eigenvectors                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-        print('Calculating eigenvectors')
+        if verbose:
+            print('Done inverse calculation')
+            #calcualting eigenvalues and eigenvectors                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+            print('Calculating eigenvectors')
         eig_vals, eig_vecs = LA.eig(np.dot(s_inv, B))
-        print('Done eigenvectors calculation')
+        if verbose:
+            print('Done eigenvectors calculation')
         print(eig_vals,eig_vecs, sep='\n')
         index = (-eig_vals).argsort()[:r]                #sorting the first r eigenvals 
         sortedEigenvecs = eig_vecs[:,index]
         self._proj_mat = np.real(sortedEigenvecs)
-        print('computing projected data')
+        if verbose:
+            print('computing projected data')
       
         if verbose:
             print(f'Mean vector class {cl} is {mean_vectors}.')
             print('within-class Scatter Matrix:\n', S)
             print('between-class Scatter Matrix:\n', S)
             print(f'sorted Eigenvectors\n{sortedEigenvecs}')
-            
-        with open('./lda_projection.npy','wb+') as f:
-            np.save(f,self._proj_mat)
+        if load_path is not None:
+            with open(load_path,'wb+') as f:
+                np.save(f,self._proj_mat)
 
         return sortedEigenvecs
 
