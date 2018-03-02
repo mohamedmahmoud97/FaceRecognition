@@ -72,3 +72,6 @@ def get_CIFAR10_data(num_training=49000, num_validation=1000, num_test=1000,
       'X_val': X_val, 'y_val': y_val,
       'X_test': X_test, 'y_test': y_test,
     }
+
+def weightedAverage(pixel):
+    return 0.299*pixel[0] + 0.587*pixel[1] + 0.114*pixel[2]
