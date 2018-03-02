@@ -1,3 +1,4 @@
 __pycache__
 pca_projection.npz
 pca_bonus_projection.npz
+cifar-10-batches-py
