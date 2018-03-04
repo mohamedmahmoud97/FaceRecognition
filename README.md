@@ -86,7 +86,7 @@ this cause our within class scatter matrix **S** to be a low rank matrix
 (the rank of S~w~ is at most N - c) and this results in **S** being
 singular.
 
-Fisher EigenFaces
+FisherFaces
 -----------------
 
 In order to solve this problem we are no heading to calculate the
