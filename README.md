@@ -63,7 +63,7 @@ accuracy (0.95) = 0.63
 The lower the alpha the higher the accuracy as the training data is too
 small and maybe if we increase the alpha it overshoots.
 
-![Eigenface](eigen_face.png "fig:") [fig:Eigenface]
+![Eigenface](eigen_face.png "fig:")
 
 LDA
 ===
@@ -102,7 +102,6 @@ projection matrix, the columns of this matrix are the fisher faces,
 figure 1 shows the first fisher face.
 
 ![K vs accuracy for Fisherfaces ](fisher_face.png "fig:")
-[fig:Fisherface]
 
 K-nearest neighbours
 ====================
@@ -144,11 +143,9 @@ Fisherfaces, one for each value of alpha, Figure 3 shows the alpha
 equaling 0.8.Here we only plotted for values of k from 1 to 7 since the
 graph seemed to decrease exponentially.
 
-![K vs accuracy for Fisherfaces ](fisher_face_k_plot.png "fig:") [fig:K
-vs accuracy for Fisherfaces]
+![K vs accuracy for Fisherfaces ](fisher_face_k_plot.png "fig:")
 
-![K vs accuracy for EigenFaces ](pca_k_plot.png "fig:") [fig:K vs
-accuracy for EigenFaces]
+![K vs accuracy for EigenFaces ](pca_k_plot.png "fig:")
 
 Bonus
 =====
